@@ -1,4 +1,4 @@
-oplogutils - Utilities for manipulating the MongoDB oplog
-=========================================================
+oplogutils - Utilities for inspecting and manipulating the MongoDB oplog
+========================================================================
 
 todo
