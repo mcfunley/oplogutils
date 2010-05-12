@@ -1,6 +1,3 @@
-from distutils.version import StrictVersion
-import sys
-import pymongo
 import calendar
 from datetime import datetime
 from pymongo import Connection
