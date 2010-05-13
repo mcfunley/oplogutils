@@ -1,0 +1,5 @@
+#!/usr/bin/python
+from oplogutils import Counter
+
+if __name__ == '__main__':
+    Counter().run()
