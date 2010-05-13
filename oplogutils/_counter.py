@@ -2,7 +2,7 @@ import _core
 from optparse import OptionParser
 
 
-def options():
+def Options(*args):
     opts = OptionParser()
     _core.common_options(opts)
     opts.add_option('', '--start', action='store', default=None,
@@ -14,13 +14,31 @@ def options():
 The range is open-ended if only one or zero of the <start> and <end> parameters
 are provided. 
 """
-    return opts.parse_args()
+    return opts
 
 
 
-class Counter(object):
-    def __init__(self):
-        self.opts, self.args = options()
+class Counter(_core.Command):
+    options_cls = Options
 
     def run(self):
-        pass
+        oplog = self.oplog()
+        start, end = self.opts.start, self.opts.end
+        if not (start or end):
+            print oplog['$main'].count(), 'events in the oplog.'
+        else:
+            q = {}
+            if start:
+                q.update({ '$gte': _core.timestamp(start) })
+            if end:
+                q.update({ '$lte': _core.timestamp(end) })
+            events = oplog['$main'].find({ 'ts': q }).count()
+            print events, 'events in the oplog',
+            if start and end:
+                print 'between', start, 'and', end,
+            elif start:
+                print 'after', start, 
+            else:
+                print 'before', end, 
+            print '(UTC).'
+

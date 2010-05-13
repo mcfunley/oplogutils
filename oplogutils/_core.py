@@ -1,6 +1,7 @@
 import calendar 
 from datetime import datetime
 from pymongo.timestamp import Timestamp
+from pymongo import Connection
 import re
 import sys
 
@@ -39,3 +40,19 @@ def common_options(op):
     
     op.parse_args = check_required
     return op
+
+
+
+class Command(object):
+    options_cls = None
+
+    def __init__(self):
+        self.opts, self.args = self.options_cls().parse_args()
+
+    
+    def oplog(self):
+        return Connection(self.opts.host, self.opts.port).local.oplog
+
+
+    def run(self):
+        raise NotImplemented()
