@@ -49,8 +49,9 @@ class args(object):
         self.args = args
 
     def __enter__(self):
-        self.old = sys.argv.copy()
-        sys.argv = sys.argv[:1] + self.args
+        self.old = sys.argv[:]
+        sys.argv = sys.argv[:1]
+        sys.argv.extend(self.args)
         
     def __exit__(self, *args):
         sys.argv = self.old
@@ -124,7 +125,7 @@ class ProcessController(object):
         with open(self.pidfile, 'wb') as f:
             f.write(str(self.proc.pid))
         
-        self.log.write('done.')
+        self.log.write('done.\n')
         self.log.flush()
 
 

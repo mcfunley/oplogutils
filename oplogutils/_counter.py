@@ -1,5 +1,6 @@
 import _core
 from optparse import OptionParser
+import sys
 
 
 def Options(*args):
@@ -27,11 +28,7 @@ class Counter(_core.Command):
         if not (start or end):
             print oplog['$main'].count(), 'events in the oplog.'
         else:
-            q = {}
-            if start:
-                q.update({ '$gte': _core.timestamp(start) })
-            if end:
-                q.update({ '$lte': _core.timestamp(end) })
+            q = self.get_query(start, end)
             events = oplog['$main'].find({ 'ts': q }).count()
             print events, 'events in the oplog',
             if start and end:
@@ -42,3 +39,16 @@ class Counter(_core.Command):
                 print 'before', end, 
             print '(UTC).'
 
+
+    def get_query(self, start, end):
+        q = {}
+        if start:
+            start = _core.timestamp(start)
+            q.update({ '$gte':  start })
+        if end:
+            end = _core.timestamp(end)
+            if start and end.as_datetime() < start.as_datetime():
+                print 'The start date must be before the end date.'
+                sys.exit(-1)
+            q.update({ '$lte':  end })
+        return q

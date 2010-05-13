@@ -6,6 +6,8 @@ import commands
 import subprocess
 from util import ProcessController
 import settings
+from pymongo import Connection
+import shutil
 
 this_dir = os.path.realpath(os.path.dirname(__file__))
 
@@ -23,17 +25,25 @@ class MongoDB(ProcessController):
                 '--port=%s' % self.port]
 
 
-    def ensure_data_dir(self):
-        if not os.path.isdir(self.dbpath):
-            os.mkdir(self.dbpath)
+    def wipe_data_dir(self):
+        if os.path.isdir(self.dbpath):
+            shutil.rmtree(self.dbpath)
+        os.mkdir(self.dbpath)
 
+
+    def load_fixtures(self):
+        c = Connection('localhost', self.port)
+        c.testdb.test.insert({ 'foo': 1, 'bar': 2 })
+        c.testdb.test.insert({ 'foo': 2, 'bar': 2 })
+        c.testdb.test.insert({ 'foo': 3, 'bar': 2 })
 
 
 class TestSuite(unittest.TestSuite):
     def run(self, result):
         mongo = MongoDB()
-        mongo.ensure_data_dir()
+        mongo.wipe_data_dir()
         with mongo:
+            mongo.load_fixtures()
             return unittest.TestSuite.run(self, result)
 
 
