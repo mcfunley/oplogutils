@@ -5,9 +5,6 @@ from StringIO import StringIO
 class output_to_string(object):
     debug_output = False 
 
-    def __init__(self):
-        self.old = sys.stdout
-
     def getvalue(self):
         return sys.stdout.getvalue()
 
@@ -33,3 +30,18 @@ class output_to_string(object):
 
     def __str__(self):
         return self.getvalue()
+
+
+
+class args(object):
+    def __init__(self, *args):
+        self.args = args
+
+    def __enter__(self):
+        self.old = sys.argv.copy()
+        sys.argv = sys.argv[:1] + self.args
+        
+    def __exit__(self, *args):
+        sys.argv = self.old
+
+        

@@ -18,5 +18,6 @@ setup(
     packages = ['oplogutils'],
     long_description = long_description,
     install_requires = 'pymongo >= 1.6',
-    test_suite = 'test',
+    test_loader = 'test:TestLoader',
+    test_suite = 'test'
     )
