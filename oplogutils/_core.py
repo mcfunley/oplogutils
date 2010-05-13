@@ -30,8 +30,8 @@ def common_options(op):
 
     original_parse = op.parse_args
 
-    def check_required():
-        opts, args = original_parse()
+    def check_required(*args, **kwargs):
+        opts, args = original_parse(*args, **kwargs)
         if not opts.host:
             op.print_help()
             sys.exit(-1)
