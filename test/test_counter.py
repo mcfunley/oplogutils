@@ -1,6 +1,6 @@
 from __future__ import with_statement
 import unittest
-from util import output_to_string, args
+from util import output_to_string, args, Test
 import settings
 from oplogutils import Counter
 import re
@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 re_start = '([0-9]*) events in the oplog'
 
 
-class CounterTests(unittest.TestCase):
+class CounterTests(Test):
 
     def args(self, *xs):
         a = ['--port=%s' % settings.MONGOD_PORT,
@@ -19,15 +19,7 @@ class CounterTests(unittest.TestCase):
 
     def count(self, *args, **kwargs):
         expect_code = kwargs.get('expect_code', 0)
-
-        with self.args(*args):
-            with output_to_string() as s:
-                try:
-                    Counter().run()
-                except SystemExit, e:
-                    self.assertEqual(e.code, expect_code)
-
-                return str(s).strip()
+        return self.run_command(Counter, args, expect_code)
 
 
     def assertPos(self, match):

@@ -8,9 +8,50 @@ from contextlib import closing
 import signal
 import sys
 from StringIO import StringIO
+import unittest
 
 
 this_dir = os.path.realpath(os.path.dirname(__file__))
+
+
+class Test(unittest.TestCase):
+
+    def run_command(self, cls, args, expect_code):
+        with self.args(*args):
+            with output_to_string() as s:
+                try:
+                    cls().run()
+                except SystemExit, e:
+                    self.assertEqual(e.code, expect_code)
+                else:
+                    if expect_code != 0:
+                        self.fail('Expected an exit code of %s, but it was 0.' %
+                                  expect_code)
+                return str(s).strip()
+
+
+class input_from_string(object):
+    num = 0
+
+    def __init__(self, string):
+        self.string = string
+        input_from_string.num += 1
+        self.filename = '%s.%s' % (os.path.join(this_dir, 'test.stdin.'), 
+                                   input_from_string.num)
+
+    def __enter__(self):
+        self.old = sys.stdin
+        with open(self.filename, 'w') as f:
+            f.write(self.string)
+
+        sys.stdin = open(self.filename, 'r')
+
+    def __exit__(self):
+        try:
+            os.unlink(self.filename)
+        finally:
+            sys.stdin = self.old
+
 
 
 class output_to_string(object):

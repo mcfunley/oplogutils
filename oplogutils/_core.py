@@ -48,6 +48,11 @@ class Command(object):
 
     def __init__(self):
         self.opts, self.args = self.options_cls().parse_args()
+        self.validate_options()
+
+
+    def validate_options(self):
+        pass
 
     
     def oplog(self):
