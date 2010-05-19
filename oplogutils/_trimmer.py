@@ -4,6 +4,7 @@ from pymongo import Connection
 from pymongo.timestamp import Timestamp
 from optparse import OptionParser
 import _core
+from _counter import CountQuery
 
 
 class Trimmer(_core.Command):
@@ -40,4 +41,9 @@ Examples:
         if self.opts.remove_after.as_datetime() > datetime.now():
             raise AssertionError('--remove-after must be in the past.')
 
+
+    def run(self):
+        q = CountQuery(start=self.opts.remove_after)
+        self.affected_rows = q.run(self.oplog())
+        
 
