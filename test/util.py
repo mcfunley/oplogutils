@@ -21,14 +21,18 @@ class Test(unittest.TestCase):
         with args(*_args):
             with output_to_string() as s:
                 try:
-                    cls().run()
-                except SystemExit, e:
-                    self.assertEqual(e.code, expect_code)
-                else:
-                    if expect_code != 0:
-                        self.fail('Expected an exit code of %s, but it was 0.' %
-                                  expect_code)
-                return str(s).strip()
+                    try:
+                        cls().run()
+                    except SystemExit, e:
+                        self.assertEqual(e.code, expect_code)
+                    else:
+                        if expect_code != 0:
+                            self.fail(
+                                'Expected an exit code of %s, but it was 0.' %
+                                expect_code)
+                finally:
+                    self.last_output = str(s).strip()
+                return self.last_output
 
 
 @contextmanager

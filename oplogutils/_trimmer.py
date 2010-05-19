@@ -37,6 +37,7 @@ Examples:
 
         self.opts.remove_after = _core.timestamp(self.opts.remove_after)
 
-            
+        if self.opts.remove_after.as_datetime() > datetime.now():
+            raise AssertionError('--remove-after must be in the past.')
 
 

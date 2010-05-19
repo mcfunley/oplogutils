@@ -33,12 +33,23 @@ class TrimmerTests(Test):
         self.assertTrue('Usage:' in s)
 
 
+    def assertion_error(self, **kwargs):
+        try:
+            s = self.trim(**kwargs)
+        except AssertionError, e:
+            return e
+        else:
+            self.fail('Expected an assertion error.')
+
+
     def test_remove_after_is_date(self):
-        self.assertRaises(AssertionError, self.trim, after='foo')
+        e = self.assertion_error(after='foo')
+        self.assertTrue('Invalid date' in str(e))
 
 
     def test_remove_after_must_be_in_the_past(self):
-        pass
+        e = self.assertion_error(after='2037-01-01 13:24:55')
+        self.assertTrue('must be in the past' in str(e))
 
 
     def test_confirm_answering_no(self):
