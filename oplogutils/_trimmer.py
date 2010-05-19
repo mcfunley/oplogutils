@@ -34,6 +34,9 @@ Examples:
     def validate_options(self):
         if not self.opts.remove_after:
             self.usage_error()
+
+        self.opts.remove_after = _core.timestamp(self.opts.remove_after)
+
             
 
 

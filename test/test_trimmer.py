@@ -33,6 +33,10 @@ class TrimmerTests(Test):
         self.assertTrue('Usage:' in s)
 
 
+    def test_remove_after_is_date(self):
+        self.assertRaises(AssertionError, self.trim, after='foo')
+
+
     def test_remove_after_must_be_in_the_past(self):
         pass
 
