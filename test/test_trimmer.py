@@ -3,19 +3,24 @@ import unittest
 from threading import Thread, Event
 from util import output_to_string, input_from_string, args, Test
 import settings
+from oplogutils import Trimmer
+
+
+missing = object()
 
 
 class TrimmerTests(Test):
 
-    def default_args(self):
-        return ['--remove-after=2010-05-10 03:14:29', '--host=localhost', 
-                '--port=%s' % settings.MONGOD_PORT]
-
-
-    def trim(self, arglist, answers, expect_code=0):
-        if arglist is None:
-            arglist = self.default_args()
-        with input_from_string(''.join(answers)):
+    def trim(self, answers=None, after='2010-05-10 03:14:29', dry_run=False, 
+             expect_code=0):
+        arglist = ['--host=localhost', '--port=%s' % settings.MONGOD_PORT]
+        if not answers and answers is not missing:
+            answers = ['y']
+        if after is not missing:
+            arglist.append('--remove-after='+after)
+        if dry_run:
+            arglist.append('--dry-run')
+        with input_from_string(''.join(answers or [])):
             return self.run_command(Trimmer, arglist, expect_code)
 
 
@@ -24,10 +29,11 @@ class TrimmerTests(Test):
 
 
     def test_remove_after_required(self):
-        pass
+        s = self.trim(after=missing, expect_code=-1)
+        self.assertTrue('Usage:' in s)
 
 
-    def test_remove_after_must_be_past(self):
+    def test_remove_after_must_be_in_the_past(self):
         pass
 
 
@@ -38,4 +44,7 @@ class TrimmerTests(Test):
     def test_confirm_defaults_to_no(self):
         pass
 
+
+    def test_removing_events(self):
+        pass
 

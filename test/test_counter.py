@@ -11,14 +11,11 @@ re_start = '([0-9]*) events in the oplog'
 
 class CounterTests(Test):
 
-    def args(self, *xs):
-        a = ['--port=%s' % settings.MONGOD_PORT,
-             '--host=localhost',] + list(xs)
-        return args(*a)
-
-
     def count(self, *args, **kwargs):
         expect_code = kwargs.get('expect_code', 0)
+        args = list(args)
+        args.extend(['--port=%s' % settings.MONGOD_PORT,
+                     '--host=localhost',])
         return self.run_command(Counter, args, expect_code)
 
 

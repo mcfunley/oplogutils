@@ -9,6 +9,7 @@ import signal
 import sys
 from StringIO import StringIO
 import unittest
+from contextlib import contextmanager
 
 
 this_dir = os.path.realpath(os.path.dirname(__file__))
@@ -16,8 +17,8 @@ this_dir = os.path.realpath(os.path.dirname(__file__))
 
 class Test(unittest.TestCase):
 
-    def run_command(self, cls, args, expect_code):
-        with self.args(*args):
+    def run_command(self, cls, _args, expect_code):
+        with args(*_args):
             with output_to_string() as s:
                 try:
                     cls().run()
@@ -28,6 +29,11 @@ class Test(unittest.TestCase):
                         self.fail('Expected an exit code of %s, but it was 0.' %
                                   expect_code)
                 return str(s).strip()
+
+
+@contextmanager
+def dummy():
+    yield
 
 
 class input_from_string(object):
@@ -46,7 +52,7 @@ class input_from_string(object):
 
         sys.stdin = open(self.filename, 'r')
 
-    def __exit__(self):
+    def __exit__(self, *args, **kwargs):
         try:
             os.unlink(self.filename)
         finally:

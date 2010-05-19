@@ -21,34 +21,36 @@ def timestamp(string_date):
 
 
 
-def common_options(op):
-    op.add_option('', '--host', action='store', dest='host', default=None, 
-                  help='The hostname of the mongodb master instance.')
-    op.add_option('', '--port', action='store', dest='port', type='int', 
-                  default=27017, 
-                  help=('The port of the mongodb master instance. (Defaults '
-                        'to 27017.)'))
-
-    original_parse = op.parse_args
-
-    def check_required(*args, **kwargs):
-        opts, args = original_parse(*args, **kwargs)
-        if not opts.host:
-            op.print_help()
-            sys.exit(-1)
-        return opts, args
-    
-    op.parse_args = check_required
-    return op
-
-
-
 class Command(object):
-    options_cls = None
 
     def __init__(self):
-        self.opts, self.args = self.options_cls().parse_args()
+        self.option_parser = self.get_options()
+        self.common_options(self.option_parser)
+        self.opts, self.args = self.option_parser.parse_args()
+
+        if not self.opts.host:
+            self.usage_error()
+
         self.validate_options()
+
+
+    def usage_error(self):
+        self.option_parser.print_help()
+        sys.exit(-1)
+
+
+    def common_options(self, op):
+        op.add_option('', '--host', action='store', dest='host', default=None, 
+                      help='The hostname of the mongodb master instance.')
+        op.add_option('', '--port', action='store', dest='port', type='int', 
+                      default=27017, 
+                      help=('The port of the mongodb master instance. (Defaults '
+                            'to 27017.)'))
+        return op
+
+
+    def get_options(self):
+        raise NotImplementedError()
 
 
     def validate_options(self):
@@ -60,4 +62,4 @@ class Command(object):
 
 
     def run(self):
-        raise NotImplemented()
+        raise NotImplementedError()
