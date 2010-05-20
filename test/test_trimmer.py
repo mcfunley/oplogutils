@@ -24,11 +24,15 @@ class TrimmerTests(Test):
 
 
     def save_oplog(self):
-        pass
+        c = self.connection()
+        c.drop_database('local_backup')
+        c.copy_database('local', 'local_backup')
 
 
     def restore_oplog(self):
-        pass
+        c = self.connection()
+        c.drop_database('local')
+        c.copy_database('local_backup', 'local')
 
 
     def trim(self, answers=None, after='2010-05-10 03:14:29', dry_run=False, 

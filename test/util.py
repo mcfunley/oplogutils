@@ -10,12 +10,25 @@ import sys
 from StringIO import StringIO
 import unittest
 from contextlib import contextmanager
-
+from pymongo import Connection
+import settings
 
 this_dir = os.path.realpath(os.path.dirname(__file__))
 
 
 class Test(unittest.TestCase):
+
+    def connection(self):
+        return Connection('localhost', settings.MONGOD_PORT)
+
+
+    def local(self):
+        return self.connection().local
+
+
+    def admin(self):
+        return self.connection().admin
+
 
     def run_command(self, cls, _args, expect_code):
         with args(*_args):
