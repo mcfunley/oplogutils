@@ -61,11 +61,9 @@ class MongoDB(ProcessController):
 
 
 
-class MongoDBRecovery(MongoDB):
-    def __init__(self, fixture_data):
-        MongoDB.__init__(self, settings.MONGOD_PORT, 'mongod.recovery', 
-                         fixture_data.fixtures)
-
+def MongoDBRecovery(fixture_data):
+    return MongoDB(settings.MONGOD_PORT, 'mongod.recovery', 
+                   fixture_data.fixtures)
 
 
 
