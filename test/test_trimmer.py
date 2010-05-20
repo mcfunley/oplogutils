@@ -13,7 +13,7 @@ missing = object()
 class TrimmerTests(Test):
 
     def trim(self, answers=None, after='2010-05-10 03:14:29', dry_run=False, 
-             expect_code=0):
+             expect_code=0, always_yes=False):
         arglist = ['--host=localhost', '--port=%s' % settings.MONGOD_PORT]
         if not answers and answers is not missing:
             answers = ['y']
@@ -21,6 +21,8 @@ class TrimmerTests(Test):
             arglist.append('--remove-after='+after)
         if dry_run:
             arglist.append('--dry-run')
+        if always_yes:
+            arglist.append('-y')
         with input_from_string(''.join(answers or [])):
             return self.run_command(Trimmer, arglist, expect_code)
 
@@ -87,19 +89,11 @@ class TrimmerTests(Test):
         self.assert_does_nothing(answers=['N'])
 
 
+    def test_always_yes_skips_confirm(self):
+        s = self.trim(always_yes=True)
+        self.assertFalse('continue?' in s)
+
+
     def test_removing_events(self):
         pass
-
-
-    def test_dry_run_does_not_commit_changes(self):
-        pass
-
-    
-    def test_always_yes_skips_confirm(self):
-        pass
-
-
-    def test_always_yes_with_dry_run(self):
-        pass
-
 

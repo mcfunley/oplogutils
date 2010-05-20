@@ -31,10 +31,6 @@ class Trimmer(_core.Command):
                         dest='remove_after',
                         help=('The time after which to delete oplog entries. '
                               '(YYYY-MM-DD HH:MM:SS, in UTC).'))
-        opts.add_option('', '--dry-run', action='store_true', default=False, 
-                        dest='dry_run',
-                        help=('Emit output explaining changes that would occur, '
-                              'but do not delete any oplog entries.'))
         opts.add_option('-y', '', action='store_true', dest='always_yes', 
                         default=None,
                         help='Answer yes for all prompts.')
@@ -61,14 +57,17 @@ Examples:
 
 
     def should_continue(self):
+        if self.opts.always_yes:
+            return True
+
         answer = ''
         while answer not in ['y', 'n']:
             print '\nDo you want to continue? [y/N] ',
             answer = self.getch().lower()
             if answer in ['\r', '\n']:
-                return 'n'
+                return False
             print
-        return answer
+        return answer == 'y'
 
 
     def run(self):
@@ -80,7 +79,7 @@ Examples:
                '%s (UTC).' % (self.affected_events, 
                               self.opts.remove_after.as_datetime()))
 
-        if self.should_continue() == 'y':
+        if self.should_continue():
             self.trim()
         else:
             print '\nDoing nothing.'
