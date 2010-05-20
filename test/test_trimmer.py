@@ -32,8 +32,8 @@ class TrimmerTests(Test):
 
 
     def trim(self, answers=None, after='2010-05-10 03:14:29', dry_run=False, 
-             expect_code=0, always_yes=False):
-        arglist = ['--host=localhost', '--port=%s' % settings.MONGOD_PORT]
+             expect_code=0, always_yes=False, port=settings.MONGOD_PORT):
+        arglist = ['--host=localhost', '--port=%s' % port]
         if not answers and answers is not missing:
             answers = ['y']
         if after is not missing:
@@ -114,7 +114,8 @@ class TrimmerTests(Test):
 
 
     def test_aborts_if_mongo_running_with_replication_options(self):
-        pass
+        s = self.trim(port=settings.MONGOD_REPLICATION_PORT, expect_code=-1)
+        self.assertTrue('with no replication options' in s)
 
 
     def test_removing_events(self):

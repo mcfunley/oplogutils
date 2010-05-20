@@ -11,11 +11,12 @@ import shutil
 import tarfile
 
 
-
 this_dir = os.path.realpath(os.path.dirname(__file__))
+
 
 def filename(n):
     return os.path.join(this_dir, n)
+
 
 
 class FixtureData(object):
@@ -46,7 +47,6 @@ class FixtureData(object):
 
     def __exit__(self, *args, **kwargs):
         pass
-    
 
 
 
@@ -94,4 +94,3 @@ class TestLoader(ScanningLoader):
         wrapper.addTests(s)
         return wrapper
 
-    
