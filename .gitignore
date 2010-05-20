@@ -7,3 +7,4 @@ test/.*
 test/mongod.*
 test/fixtures/
 test/fixtures.replication/
+*mongo.log

@@ -115,10 +115,9 @@ class TrimmerTests(Test):
 
     def test_aborts_if_mongo_running_with_replication_options(self):
         s = self.trim(port=settings.MONGOD_REPLICATION_PORT, expect_code=-1)
-        self.assertTrue('with no replication options' in s)
+        self.assertTrue('without replication options' in s.replace('\n', ' '))
 
 
     def test_removing_events(self):
         pass
 
-    

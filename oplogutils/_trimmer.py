@@ -71,6 +71,8 @@ Examples:
 
 
     def run(self):
+        self.assert_replication_off()
+
         q = CountQuery(start=self.opts.remove_after)
         self.affected_events = q.run(self.oplog())
 
@@ -84,6 +86,15 @@ Examples:
         else:
             print '\nDoing nothing.'
             sys.exit(1)
+
+
+    def assert_replication_off(self):
+        if self.replication_enabled():
+            print """
+In order to use this command, the master database must be restarted without
+replication options. Back it up and restart it without the --master switch.
+"""
+            sys.exit(-1)
 
 
     def trim(self):

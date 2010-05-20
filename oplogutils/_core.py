@@ -62,8 +62,17 @@ class Command(object):
         pass
 
 
+    def connection(self):
+        return Connection(self.opts.host, self.opts.port)
+
+
+    def replication_enabled(self):
+        stat = self.connection().admin.command({ 'serverStatus': 1 })
+        return 'repl' in stat
+
+
     def db_local(self):
-        return Connection(self.opts.host, self.opts.port).local
+        return self.connection().local
 
 
     def oplog(self):
