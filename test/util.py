@@ -121,7 +121,7 @@ class ProcessController(object):
         self.stderr_file = self.logpath('%s.err' % name)
         self.stdout_file = self.logpath('%s.out' % name)
         self.cwd = os.getcwd()
-        self.log = sys.stdout
+        self._log = sys.stdout
 
 
     def logpath(self, name):
@@ -150,10 +150,14 @@ class ProcessController(object):
     def get_command(self):
         raise NotImplemented()
 
+
+    def log(self, s):
+        self._log.write(s)
+        self._log.flush()
+
         
     def start(self):
-        self.log.write('Starting %s... ' % self.name)
-        self.log.flush()
+        self.log('Starting %s... ' % self.name)
 
         if self.port_responding():
             self.handle_zombie()
@@ -176,8 +180,7 @@ class ProcessController(object):
         with open(self.pidfile, 'wb') as f:
             f.write(str(self.proc.pid))
         
-        self.log.write('done.\n')
-        self.log.flush()
+        self.log('done.\n')
 
 
     def server_up(self):
