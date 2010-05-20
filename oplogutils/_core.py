@@ -61,9 +61,13 @@ class Command(object):
     def validate_options(self):
         pass
 
-    
+
+    def db_local(self):
+        return Connection(self.opts.host, self.opts.port).local
+
+
     def oplog(self):
-        return Connection(self.opts.host, self.opts.port).local.oplog
+        return self.db_local().oplog
 
 
     def run(self):

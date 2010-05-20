@@ -1,0 +1,17 @@
+db.test.insert({ 'foo': 1, 'bar': 2 });
+db.test.ensureIndex({ 'foo': 1 });
+db.test2.insert({ 'blah': 7 });
+db.test2.drop();
+db.test.insert({ 'foo': 1, 'bar': 2 });
+db.test.insert({ 'foo': 1, 'bar': 2 });
+db.test.insert({ 'foo': 19, 'bar': 2 });
+db.test.insert({ 'foo': 8, 'bar': 2 });
+db.test.insert({ 'foo': 42, 'bar': 2 });
+db.test.insert({ 'foo': 1, 'bar': 2 });
+db.test.insert({ 'foo': 13, 'bar': 2 });
+db.test.insert({ 'foo': 1, 'bar': 2 });
+db.test.insert({ 'foo': 17, 'bar': 2 });
+db.test.update({ 'foo': 17 }, { 'foo': 17, 'bar': 8, 'baz': 19 });
+db.test.update({ 'foo': 13 }, { '$set': { 'bar': 69 } });
+db.test.update({ 'foo': 129 }, { 'foo': 129, 'bar': 77 }, true);
+db.test.update({ 'foo': 1 }, { 'foo': 1, 'bar': 77 }, true, true);

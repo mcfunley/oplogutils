@@ -12,6 +12,25 @@ missing = object()
 
 class TrimmerTests(Test):
 
+
+    def setUp(self):
+        Test.setUp(self)
+        self.save_oplog()
+
+
+    def tearDown(self):
+        Test.tearDown(self)
+        self.restore_oplog()
+
+
+    def save_oplog(self):
+        pass
+
+
+    def restore_oplog(self):
+        pass
+
+
     def trim(self, answers=None, after='2010-05-10 03:14:29', dry_run=False, 
              expect_code=0, always_yes=False):
         arglist = ['--host=localhost', '--port=%s' % settings.MONGOD_PORT]
@@ -94,6 +113,11 @@ class TrimmerTests(Test):
         self.assertFalse('continue?' in s)
 
 
+    def test_aborts_if_mongo_running_with_replication_options(self):
+        pass
+
+
     def test_removing_events(self):
         pass
 
+    
