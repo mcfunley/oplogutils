@@ -2,9 +2,26 @@ import calendar
 from datetime import datetime
 from pymongo import Connection
 from pymongo.timestamp import Timestamp
-from optparse import OptionParser
+from optparse import OptionParser, IndentedHelpFormatter
 import _core
 from _counter import CountQuery
+import sys
+import tty
+
+
+
+class HelpFormatter(IndentedHelpFormatter):
+    def format_epilog(self, epilog):
+        # don't strip newlines out, etc. 
+        return epilog
+
+
+
+warning = """
+WARNING: Trimming the oplog is destructive. Before performing this procedure, 
+you should back up the master database files. 
+"""
+
 
 
 class Trimmer(_core.Command):
@@ -23,12 +40,13 @@ class Trimmer(_core.Command):
                         help='Answer yes for all prompts.')
         opts.usage = '%prog --host=<host> --remove-after=<date> [options]'
         opts.epilog = """
-WARNING: Trimming the oplog is destructive. Before performing this
-procedure, you should back up the master database files. 
+%s
 
 Examples:
 
-"""
+""" % warning
+
+        opts.formatter = HelpFormatter()
         return opts
         
 
@@ -42,8 +60,32 @@ Examples:
             raise AssertionError('--remove-after must be in the past.')
 
 
+    def should_continue(self):
+        answer = ''
+        while answer not in ['y', 'n']:
+            print '\nDo you want to continue? [y/N] ',
+            answer = self.getch().lower()
+            if answer in ['\r', '\n']:
+                return 'n'
+            print
+        return answer
+
+
     def run(self):
         q = CountQuery(start=self.opts.remove_after)
-        self.affected_rows = q.run(self.oplog())
-        
+        self.affected_events = q.run(self.oplog())
 
+        print warning
+        print ('This will remove %d events from the end of the oplog after '
+               '%s (UTC).' % (self.affected_events, 
+                              self.opts.remove_after.as_datetime()))
+
+        if self.should_continue() == 'y':
+            self.trim()
+        else:
+            print '\nDoing nothing.'
+            sys.exit(1)
+
+
+    def trim(self):
+        pass

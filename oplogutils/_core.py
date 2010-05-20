@@ -4,6 +4,11 @@ from pymongo.timestamp import Timestamp
 from pymongo import Connection
 import re
 import sys
+import tty
+import termios
+import os
+
+
 
 def _num(n):
     return '([0-9]{%d,})' % n
@@ -63,3 +68,17 @@ class Command(object):
 
     def run(self):
         raise NotImplementedError()
+
+
+    def getch(self):
+        fd = sys.stdin.fileno()
+        if not os.isatty(fd):
+            return sys.stdin.read(1)
+
+        attr = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            return sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, attr)
+

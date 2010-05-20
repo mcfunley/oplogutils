@@ -4,6 +4,7 @@ from threading import Thread, Event
 from util import output_to_string, input_from_string, args, Test
 import settings
 from oplogutils import Trimmer
+import re
 
 
 missing = object()
@@ -22,10 +23,6 @@ class TrimmerTests(Test):
             arglist.append('--dry-run')
         with input_from_string(''.join(answers or [])):
             return self.run_command(Trimmer, arglist, expect_code)
-
-
-    def test_dry_run_does_not_commit_changes(self):
-        pass
 
 
     def test_remove_after_required(self):
@@ -52,14 +49,57 @@ class TrimmerTests(Test):
         self.assertTrue('must be in the past' in str(e))
 
 
+    def assert_does_nothing(self, **kwargs):
+        kwargs.setdefault('expect_code', 1)
+        s = self.trim(**kwargs)
+        self.assertTrue('Doing nothing' in s)
+
+
     def test_confirm_answering_no(self):
-        pass
+        self.assert_does_nothing(answers=['n'])
 
 
-    def test_confirm_defaults_to_no(self):
-        pass
+    def count_prompts(self):
+        return len(re.findall('Do you want to continue', self.last_output))
+
+
+    def test_nonsensical_answer_prompts_again(self):
+        self.trim(answers=['x', 'y'])
+        self.assertEqual(self.count_prompts(), 2)
+
+
+    def test_no_is_default(self):
+        s = self.trim(answers=['\r'], expect_code=1)
+        self.assertTrue('Doing nothing' in s)
+
+
+    def test_displays_warning(self):
+        self.assertTrue('WARNING' in self.trim())
+
+
+    def test_displays_affected_rows(self):
+        ms = re.findall('will remove ([0-9]*) events', self.trim())
+        self.assertTrue(ms)
+        self.assertTrue(int(ms[0]))
+
+
+    def test_confirm_case_insensitive(self):
+        self.assert_does_nothing(answers=['N'])
 
 
     def test_removing_events(self):
         pass
+
+
+    def test_dry_run_does_not_commit_changes(self):
+        pass
+
+    
+    def test_always_yes_skips_confirm(self):
+        pass
+
+
+    def test_always_yes_with_dry_run(self):
+        pass
+
 
