@@ -38,8 +38,6 @@ class Trimmer(_core.Command):
         opts.epilog = """
 %s
 
-Examples:
-
 """ % warning
 
         opts.formatter = HelpFormatter()
