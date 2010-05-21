@@ -12,14 +12,83 @@ import unittest
 from contextlib import contextmanager
 from pymongo import Connection
 import settings
+import shutil
+import tarfile
+
 
 this_dir = os.path.realpath(os.path.dirname(__file__))
 
 
+def filename(n):
+    return os.path.join(this_dir, n)
+
+
+
+
+class FixtureData(object):
+    def __init__(self, name=None):
+        self.path = filename(name or 'fixtures')
+
+
+    def extract(self):
+        self.wipe_dir()
+        tar = tarfile.open(filename('fixtures.tar.gz'), 'r:gz')
+        tar.extractall(this_dir)
+        return self.path
+        
+
+    def wipe_dir(self):
+        if os.path.isdir(self.path):
+            shutil.rmtree(self.path)
+
+
+    def __enter__(self):
+        return self.extract()
+
+
+    def __exit__(self, *args, **kwargs):
+        self.wipe_dir()
+
+
+
+class FixtureCopy(FixtureData):
+    def __init__(self, name, copy_from=None):
+        FixtureData.__init__(self, name)
+        self.copy_from = filename(copy_from or 'fixtures')
+
+    
+    def copy(self):
+        self.wipe_dir()
+        cmd = 'cp -R %s %s' % (self.copy_from, self.path)
+        st, outp = commands.getstatusoutput(cmd)
+        if st != 0:
+            msg = 'Error copying fixtures: \n%s\n\nreturn code: %s' % (outp, st)
+            raise AssertionError(msg)
+        return self.path
+
+    
+    def __enter__(self):
+        return self.copy()
+
+
+
+def mutates_oplog(f):
+    def g(self):
+        with FixtureCopy(settings.FIXTURES_TEMP, settings.FIXTURES_COPY) as d:
+            with MongoDB(settings.MONGOD_TEMP_PORT, 'mongod.temp', d, log=False):
+                self.port = settings.MONGOD_TEMP_PORT
+                return f(self)
+    return g
+
+
+
 class Test(unittest.TestCase):
 
+    mongo_port = settings.MONGOD_PORT
+
+
     def connection(self):
-        return Connection('localhost', settings.MONGOD_PORT)
+        return Connection('localhost', self.mongo_port)
 
 
     def local(self):
@@ -273,3 +342,17 @@ def find_executable_in_unix_path(name):
             if e.errno == errno.EINTR: 
                 continue 
             raise 
+
+
+
+class MongoDB(ProcessController):
+    def __init__(self, port, name, dbpath, log=True):
+        if not log:
+            self.log = lambda s: s
+
+        ProcessController.__init__(self, port, name)
+        self.dbpath = dbpath
+
+    def get_command(self):
+        return [self.find_executable('mongod'), '--dbpath='+self.dbpath, 
+                '--nohttpinterface', '--port=%s' % self.port]

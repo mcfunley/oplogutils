@@ -1,7 +1,7 @@
 from __future__ import with_statement
 import unittest
-from threading import Thread, Event
-from util import output_to_string, input_from_string, args, Test
+from util import (output_to_string, input_from_string, args, Test, 
+                  mutates_oplog)
 import settings
 from oplogutils import Trimmer
 import re
@@ -12,32 +12,9 @@ missing = object()
 
 class TrimmerTests(Test):
 
-
-    def setUp(self):
-        Test.setUp(self)
-        self.save_oplog()
-
-
-    def tearDown(self):
-        Test.tearDown(self)
-        self.restore_oplog()
-
-
-    def save_oplog(self):
-        c = self.connection()
-        c.drop_database('local_backup')
-        c.copy_database('local', 'local_backup')
-
-
-    def restore_oplog(self):
-        c = self.connection()
-        c.drop_database('local')
-        c.copy_database('local_backup', 'local')
-
-
     def trim(self, answers=None, after='2010-05-10 03:14:29', dry_run=False, 
-             expect_code=0, always_yes=False, port=settings.MONGOD_PORT):
-        arglist = ['--host=localhost', '--port=%s' % port]
+             expect_code=0, always_yes=False, port=None):
+        arglist = ['--host=localhost', '--port=%s' % (port or self.mongo_port)]
         if not answers and answers is not missing:
             answers = ['y']
         if after is not missing:
@@ -88,6 +65,7 @@ class TrimmerTests(Test):
         return len(re.findall('Do you want to continue', self.last_output))
 
 
+    @mutates_oplog
     def test_nonsensical_answer_prompts_again(self):
         self.trim(answers=['x', 'y'])
         self.assertEqual(self.count_prompts(), 2)
@@ -98,10 +76,12 @@ class TrimmerTests(Test):
         self.assertTrue('Doing nothing' in s)
 
 
+    @mutates_oplog
     def test_displays_warning(self):
         self.assertTrue('WARNING' in self.trim())
 
 
+    @mutates_oplog
     def test_displays_affected_rows(self):
         ms = re.findall('will remove ([0-9]*) events', self.trim())
         self.assertTrue(ms)
@@ -112,6 +92,7 @@ class TrimmerTests(Test):
         self.assert_does_nothing(answers=['N'])
 
 
+    @mutates_oplog
     def test_always_yes_skips_confirm(self):
         s = self.trim(always_yes=True)
         self.assertFalse('continue?' in s)

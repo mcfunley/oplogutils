@@ -14,7 +14,7 @@ class CounterTests(Test):
     def count(self, *args, **kwargs):
         expect_code = kwargs.get('expect_code', 0)
         args = list(args)
-        args.extend(['--port=%s' % settings.MONGOD_PORT,
+        args.extend(['--port=%s' % self.mongo_port,
                      '--host=localhost',])
         return self.run_command(Counter, args, expect_code)
 
