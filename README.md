@@ -5,16 +5,21 @@
 This package contains utilities for manipulating a MongoDB oplog, which can be
 necessary in recovery scenarios. The tools are:
 
-> oplog-count - counts the number of events in the oplog after a certain date and time.
+<pre>
+oplog-count - counts the number of events in the oplog after a certain date 
+              and time.
 oplog-trim  - deletes events from the oplog after a certain date and time.
+</pre>
 
 
 ## Installation
 
 To install from source, extract the tarball and use the following commands.
 
-> python setup.py build
+<pre>
+python setup.py build
 sudo python setup.py install
+</pre>
 
 
 ## Unit Tests
