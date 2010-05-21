@@ -5,6 +5,7 @@ from util import (output_to_string, input_from_string, args, Test,
 import settings
 from oplogutils import Trimmer
 import re
+from pymongo.timestamp import Timestamp
 
 
 missing = object()
@@ -18,6 +19,8 @@ class TrimmerTests(Test):
         if not answers and answers is not missing:
             answers = ['y']
         if after is not missing:
+            if isinstance(after, Timestamp):
+                after = self.timestamp_to_arg(after)
             arglist.append('--remove-after='+after)
         if dry_run:
             arglist.append('--dry-run')
@@ -25,6 +28,10 @@ class TrimmerTests(Test):
             arglist.append('-y')
         with input_from_string(''.join(answers or [])):
             return self.run_command(Trimmer, arglist, expect_code)
+
+
+    def timestamp_to_arg(self, ts):
+        return ts.as_datetime().strftime('%Y-%m-%d %H:%M:%S')
 
 
     def test_remove_after_required(self):
@@ -103,6 +110,42 @@ class TrimmerTests(Test):
         self.assertTrue('without replication options' in s.replace('\n', ' '))
 
 
-    def test_removing_events(self):
-        pass
+    def trimmed_count(self):
+        return self.oplog().find({ 'op': 'n', 'ns': '' }).count()
 
+
+    def active_count(self):
+        return self.oplog().find({ 'ns': { '$ne': '' }, 
+                                   'op': { '$ne': 'n' } }).count()
+
+
+    @mutates_oplog
+    def test_removing_all_events(self):
+        self.assertTrue(self.active_count())
+        self.trim()
+        self.assertEqual(self.active_count(), 0)
+
+
+    @mutates_oplog
+    def test_creates_ts_index(self):
+        indexes = self.local().system.indexes
+        def haveindex():
+            return indexes.find({ 'key': { 'ts': 1 } }).count()
+
+        self.assertFalse(haveindex())
+        self.trim()
+        self.assertTrue(haveindex())
+
+
+    @mutates_oplog
+    def test_remove_some_events(self):
+        ts = self.oplog().find().skip(20).limit(1)[0]['ts']
+        self.trim(after=ts)
+        self.assertTrue(self.active_count())
+        self.assertTrue(self.trimmed_count())
+
+
+    @mutates_oplog
+    def test_shows_progress(self):
+        s = self.trim()
+        self.assertTrue(re.findall('Trimmed [0-9]* events', s, re.M))

@@ -1,12 +1,9 @@
 from __future__ import with_statement
-from contextlib import contextmanager, nested
-import os
+from contextlib import nested
 from setuptools.command.test import ScanningLoader
 import unittest
-import commands
 from util import MongoDB, FixtureData, FixtureCopy
 import settings
-from pymongo import Connection
 
 
 

@@ -7,7 +7,7 @@ import _core
 from _counter import CountQuery
 import sys
 import tty
-
+from itertools import count, izip
 
 
 class HelpFormatter(IndentedHelpFormatter):
@@ -98,4 +98,26 @@ replication options. Back it up and restart it without the --master switch.
 
 
     def trim(self):
-        pass
+        conn = self.connection()
+        db = conn.local
+        db['oplog.$main'].rename('tmp_oplog')
+
+        print 'Creating timestamp index... ',
+        sys.stdout.flush()
+        db.tmp_oplog.create_index('ts')
+        print 'done.'
+
+        print 'Trimming oplog events... '
+        ts = self.opts.remove_after
+        mod = min(1000, self.affected_events / 10)
+        for i, op in izip(count(), db.tmp_oplog.find({ 'ts': { '$gte': ts } })):
+            if i and i % mod == 0:
+                print 'Trimmed %d events.' % i
+            db.tmp_oplog.update({ 'ts': op['ts'] }, 
+                                { '$set': { 'op': 'n', 'ns': '' } }, safe=True)
+            
+        conn.admin.command('renameCollection', 'local.tmp_oplog', 
+                           to='local.oplog.$main')
+
+        print 'done.'
+            

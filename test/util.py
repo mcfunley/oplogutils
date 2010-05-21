@@ -19,9 +19,9 @@ import tarfile
 this_dir = os.path.realpath(os.path.dirname(__file__))
 
 
+
 def filename(n):
     return os.path.join(this_dir, n)
-
 
 
 
@@ -76,7 +76,7 @@ def mutates_oplog(f):
     def g(self):
         with FixtureCopy(settings.FIXTURES_TEMP, settings.FIXTURES_COPY) as d:
             with MongoDB(settings.MONGOD_TEMP_PORT, 'mongod.temp', d, log=False):
-                self.port = settings.MONGOD_TEMP_PORT
+                self.mongo_port = settings.MONGOD_TEMP_PORT
                 return f(self)
     return g
 
@@ -89,6 +89,10 @@ class Test(unittest.TestCase):
 
     def connection(self):
         return Connection('localhost', self.mongo_port)
+
+
+    def oplog(self):
+        return self.local().oplog['$main']
 
 
     def local(self):
@@ -352,6 +356,7 @@ class MongoDB(ProcessController):
 
         ProcessController.__init__(self, port, name)
         self.dbpath = dbpath
+
 
     def get_command(self):
         return [self.find_executable('mongod'), '--dbpath='+self.dbpath, 
