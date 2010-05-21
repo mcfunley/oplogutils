@@ -30,7 +30,11 @@ To install from source, extract the tarball and use the following commands.
 Examples
 ========
 
-## Unit Tests
+> oplog-trim --host=myhost.domain.com --port=27017 --remove-after="2010-05-22 03:42:00"
+
+
+Unit Tests
+==========
 
 oplogutils comes with a fairly complete unit test suite. The suite requires the
 ``mongod`` program to be somewhere in the ``$PATH``. To run the tests, use:
