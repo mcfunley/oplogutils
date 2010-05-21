@@ -42,5 +42,6 @@ oplogutils comes with a fairly complete unit test suite. The suite requires the
 
 ## Version History
 
-* Version 0.1 - 05-21-2010 - Initial release
+### Version 0.1 
+*  05-21-2010 - Initial release
 
