@@ -1,7 +1,8 @@
 # oplogutils  
 
 Utilities for inspecting and manipulating the MongoDB oplog.
-By Dan McKinley - dan@etsy.com - http://mcfunley.com
+
+By Dan McKinley - dan@etsy.com - [http://mcfunley.com](http://mcfunley.com)
 
 
 ## Overview
@@ -36,7 +37,7 @@ oplog-trim --host=myhost.domain.com --port=27017 --remove-after="2010-05-22 03:4
 ## Unit Tests
 
 oplogutils comes with a fairly complete unit test suite. The suite requires the
-``mongod`` program to be somewhere in the ``$PATH``. To run the tests, use:
+mongod program to be somewhere in the $PATH. To run the tests, use:
 
 <pre>
 python setup.py test
