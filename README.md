@@ -58,6 +58,9 @@ python setup.py test
 
 ## Version History
 
+### Version 0.1.1 
+* 05-30-2010 - Added oplogutils to cheeseshop.
+
 ### Version 0.1
-*  05-21-2010 - Initial release
+*  05-21-2010 - Initial release.
 
