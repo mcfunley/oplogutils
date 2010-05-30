@@ -19,6 +19,12 @@ necessary in recovery scenarios. The tools are:
 
 ## Installation
 
+The easiest way to install is using [setuptools](http://pypi.python.org/pypi/setuptools).
+
+<pre>
+$ easy_install oplogutils
+</pre>
+
 To install from source, extract the tarball and use the following commands.
 
 <pre>
