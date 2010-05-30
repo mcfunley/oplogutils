@@ -1,6 +1,6 @@
 from __future__ import with_statement
 import unittest
-from util import output_to_string, args, Test
+from util import output_to_string, args, Test, mutates_oplog
 import settings
 from oplogutils import Counter
 import re
@@ -80,10 +80,10 @@ class CounterTests(Test):
 
 
     def test_start_and_end(self):
+        d = self.oplog().find_one()['ts'].as_datetime()
         day = timedelta(1)
-        now = datetime.now()
-        start = str(now - day)[:19]
-        end = str(now + day)[:19]
+        start = str(d - day)[:19]
+        end = str(d + day)[:19]
         m = re.match(re_start + ' between (.*) and (.*) \(UTC\)\.', 
                      self.count('--start=%s' % start, '--end=%s' % end))
         self.assertTrue(m)

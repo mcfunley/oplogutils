@@ -34,6 +34,9 @@ class Command(object):
         self.common_options(self.option_parser)
         self.opts, self.args = self.option_parser.parse_args()
 
+        if self.opts.version:
+            self.show_version()
+
         if not self.opts.host:
             self.usage_error()
 
@@ -45,6 +48,11 @@ class Command(object):
         sys.exit(-1)
 
 
+    def show_version(self):
+        print 'OPLOGUTILS version', sys.modules['oplogutils'].__version__
+        sys.exit(0)
+
+
     def common_options(self, op):
         op.add_option('', '--host', action='store', dest='host', default=None, 
                       help='The hostname of the mongodb master instance.')
@@ -52,6 +60,9 @@ class Command(object):
                       default=27017, 
                       help=('The port of the mongodb master instance. (Defaults '
                             'to 27017.)'))
+        op.add_option('', '--version', action='store_true', dest='version', 
+                      default=False, 
+                      help='Display version information and exit.')
         return op
 
 

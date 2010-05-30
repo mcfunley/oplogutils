@@ -58,6 +58,9 @@ python setup.py test
 
 ## Version History
 
+### Version 0.1.2
+* 05-30-2010 - Added --version switch to commands. Test fixes.
+
 ### Version 0.1.1 
 * 05-30-2010 - Added oplogutils to cheeseshop.
 

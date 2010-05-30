@@ -9,7 +9,7 @@ script = os.path.join(this_dir, 'scripts/oplog-trim')
 
 setup(
     name = 'oplogutils',
-    version = '0.1.1',
+    version = '0.1.2',
     author = 'Dan McKinley',
     author_email = 'dan@etsy.com',
     description = 'A oplog editing utility for mongodb.',

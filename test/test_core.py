@@ -2,7 +2,8 @@ from __future__ import with_statement
 import unittest
 from oplogutils import _core
 from optparse import OptionParser
-from util import output_to_string, args
+from util import output_to_string, args, Test
+import re
 
 
 class MockCommand(_core.Command):
@@ -17,7 +18,11 @@ class MockCommand(_core.Command):
 
 
 
-class CoreTests(unittest.TestCase):
+class CoreTests(Test):
+
+    def test_version(self):
+        txt = self.run_command(MockCommand, ['--version'], 0)
+        self.assertTrue(re.match('\s*OPLOGUTILS version [0-9.]+\s*', txt))
 
 
     def test_timestamp(self):
